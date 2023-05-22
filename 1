@@ -1,0 +1,9 @@
+I probably wouldn't use a map function but rather some Decision logic in the process flow. Of course there will likely be a number of considerations based on the specifics of your use case but I might think of approaching it like this. I'm going to assume each document contains multiple records (like a CSV or "bulk" XML).
+
+Take the second document and store it in a Document Cache. Be sure to split (using a Data Process - Split shape) so that each record is indexed separately. (Docs need to go into the cache at the granularity with which you want to look them up.)
+Split the first document again by record.
+Use a Decision shape to take some identifying value from the data and do a Document Cache lookup and check for a result.
+If "true", simply ignore it by routing to a Stop shape.
+If "false", continue processing as necessary, perhaps using a Data Process - Combine shape to re-combine the records into a single document.
+
+Conceptually it might look like this:
