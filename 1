@@ -7,3 +7,50 @@ If "true", simply ignore it by routing to a Stop shape.
 If "false", continue processing as necessary, perhaps using a Data Process - Combine shape to re-combine the records into a single document.
 
 Conceptually it might look like this:
+describes how to create a generic, reusable user defined map function to perform a simple if-else value comparison and conditionally return dynamic result values.
+
+Use Case
+Approach
+Implementation
+Usage Considerations
+Use Case
+When transforming values in a map shape you may need to conditionally output a value based on the comparison of two other values. The comparison values as well as the value to output may need to be obtained dynamically from the source data.
+
+For example, consider the following potential mapping requirements:
+
+If Field A is not blank, output Field A otherwise output Field B.
+If Field A = Field B, output Field A otherwise output Field B.
+If Field A = "123" (static value), output Field A otherwise output blank.
+Approach
+Create a generic user defined map function with a single scripting step that performs the comparison and result logic. Because of the conditional if-else logic, scripting will be required.
+Map values from the source profile to the function's inputs as desired.
+It is worth mentioning several other mapping features that can be used for similar conditional mapping requirements. While these features certainly have their purposes, they have limitations with respect to the use case discussed here, notably the inability to obtain the comparison and result values dynamically.
+
+Default Values - Configuring a default value on the destination profile element works for situations in which you need to map a static value if the source field is blank. However the comparison is only whether the value is blank (vs. some arbitrary value) and the default value is statically defined.
+Cross Reference Table and Simple Lookup functions - These work well for simple "if-this-then-that" value translations and can return values not present in the source data. Cross reference tables can return results based upon matching several values. However the translation values must be configured ahead of time and you must account for all potential matches. If conditional output logic is desired you will need to use scripting anyway.
+Implementation
+Create a new User Defined Function with a single Custom Scripting step with the following inputs and outputs:
+
+
+
+Custom Scripting step:
+
+
+
+if (val1 == val2) {
+  result = trueVal;
+} else {
+  result = falseVal;
+}
+Map values from the source profile as desired. When using the function, keep the logic in mind: "If <Value 1> equals <Value 2> then output <True Result> else output <False Result>"
+
+Below are two examples of the function in use and how to interpret them:
+
+
+
+Example 1: If field 1 equals field 2, output field 1 else output field 3.
+Example 2: If field 4 equals "PROMO", output field 4 else output "N/A".
+Usage Considerations
+The comparison is an exact string match.
+All function inputs are optional. If nothing is mapped to an input or the value passed in is blank, null, or not present in the source data, it will be treated as an empty string ("").
+Create this function in a "common" or "shared" component folder and reuse across your processes. When possible, reusing a single generic function leads to more consistent configuration across your processes vs. creating copies of one-off scripting functions.
